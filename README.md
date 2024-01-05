@@ -48,7 +48,7 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
     - Now you have a next project with folder name my-next-app  or your custom next project
     - cd into my-next-app or custom directory
     - Copy any of the two provided Dockerfiles into my-next-app or your custom next app directory as Dockerfile
-    - Please note that while creating a next project it asks for if you are using typescript or not. If you are using typescript it creates a tsconfig.json file if not enabled it creates jsconfig.json. Please update the copy line in Dockerfile accordingly. In context of current project I am not using typescript so i am copying jsconfig.json file.
+    - Please note that while creating a next project it asks for if you are using typescript or not. If you are using typescript it creates a tsconfig.json file if not enabled it creates jsconfig.json. Please update the copy line in Dockerfile accordingly. In context of current project I am not using typescript so i am copying jsconfig.json file. or if you have copied Dockerfile.example2 as Dockerfile to my-next-app or custom directory you don't have to change anything
 
    - Next move to root directory in this case app directory and copy the docker-compose file there.
    - Copy the .env file to root directory as well and update it by adding required environment variables.
@@ -59,8 +59,8 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
    docker-compose logs -f    # to check the logs of the containers
    ```
 
-   - Visit the browser and hit localhost:3000 to check your next app
-   - Visit https://localhost:9200 to check elastic search
+   - Visit http://localhost:3000 to check your next app
+   - Visit http://localhost:9200 to check elastic search
    - To reset the elastic search password for elastic user use following command:
    ```
    docker exec -it myelasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i 
@@ -68,7 +68,7 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 - Your directory structure should look like this:
 ```
-- .
+app .
 ├── docker-compose.yml
 ├── my-next-app
 │   ├── Dockerfile
@@ -85,3 +85,20 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 └── sql-scripts
 
 ```
+## Please note if you want to clone this and run it then follow these instruction:
+- Step 1: clone the repo:
+  ```
+  git clone https://github.com/RajaMuneerBaigal/Next-App.git
+
+  ```
+- Step 2: cd into the clone directory i.e Next-App
+- Step 3: Run docker-compose up -d elasticsearch
+- Step 4: set kibana_system user password to 'kibana' using following command when prompted:
+  ```
+  docker exec -it myelasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system -i
+  ```
+- Step 5: Now run docker-compose up again as we have setup kibana_system password so kibana will be able to talk to elastic search
+- Step 6: visit elasticsearch on http://localhost:9200 with username and password both equals elastic
+- Step 7: visit kibana dashboard on http://localhost:5601 with username elastic and password elastic
+
+## Note: if you set the xpack.security.enabled variable in docker-compose to false you don't need any elasticsearch and kibana usernames or passwords in docker-compose.yml or in .env file
