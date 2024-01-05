@@ -1,0 +1,69 @@
+version: '3.1'
+
+services:
+
+  next-app:
+    container_name: next-app
+    build:
+      context: ./my-next-app
+      dockerfile: Dockerfile
+    # Set environment variables directly in the docker-compose file
+    #environment:
+    # Set envrionment variables based on the .env file    
+    env_file:
+      - .env
+    volumes:
+      - ./my-next-app/src:/app/src
+      - ./my-next-app/public:/app/public
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - redis
+      - mysql
+      - elasticsearch
+
+  mysql:
+        image: mysql:latest
+        container_name: mysql
+        ports:
+            - $MYSQL_PORT:$MYSQL_PORT
+        volumes:
+            - db_data:/var/lib/mysql/                        # volume used for persistency
+            - ./sql-scripts:/docker-entrypoint-initdb.d      # put your .sql schemas in this directory by creating it
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+            MYSQL_DATABASE: $MYSQL_DATABASE
+            MYSQL_USER: $MYSQL_USER 
+            MYSQL_PASSWORD: $MYSQL_PASSWORD
+  redis:
+        image: redis:latest
+        container_name: myredis
+        ports:
+            - $REDIS_PORT:$REDIS_PORT
+        #volumes: 
+            #- /myredis/conf:/usr/local/etc/redis  optional if you want to mount your own redis configuration inside container only then use it
+  elasticsearch:
+        image: elasticsearch:$ELASTIC_VERSION
+        container_name: myelasticsearch
+        environment:
+          - discovery.type=single-node
+          - bootstrap.memory_lock=true
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - ELASTIC_PASSWORD=$ELASTICSEARCH_PASSWORD
+          - ELASTIC_USER=$ELASTICSEARCH_USER
+          - xpack.security.enabled=$ELASTIC_SECURITY  
+        ulimits:
+          memlock:
+              soft: -1
+              hard: -1
+        volumes:
+          - esdata1:/usr/share/elasticsearch/data
+        ports:
+            - $ELASTICSEARCH_PORT:$ELASTICSEARCH_PORT
+            - 9300:9300
+volumes:
+  db_data:
+  esdata1:
+    driver: local
